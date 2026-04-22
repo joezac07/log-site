@@ -1,4 +1,4 @@
-```html
+```html id="finalclean"
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,16 +16,6 @@ body {
     transition: opacity 0.6s ease;
 }
 
-/* grain */
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: url('https://grainy-gradients.vercel.app/noise.svg');
-    opacity: 0.05;
-    pointer-events: none;
-}
-
 /* center */
 .center {
     position: absolute;
@@ -35,12 +25,7 @@ body::after {
     text-align: center;
 }
 
-/* lock screen */
-#lock {
-    z-index: 10;
-}
-
-/* hide initially */
+/* lock */
 #landing, #grid {
     display: none;
 }
@@ -51,7 +36,6 @@ button {
     color: #eaeaea;
     padding: 10px 20px;
     cursor: pointer;
-    margin-top: 20px;
 }
 button:hover {
     background: #111;
@@ -77,9 +61,7 @@ button:hover {
 }
 .tile:hover {
     background: #111;
-    box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
 }
-
 .tile span {
     opacity: 0.2;
 }
@@ -94,7 +76,6 @@ button:hover {
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
     background: rgba(20,20,20,0.95);
-    backdrop-filter: blur(10px);
     padding: 25px;
     border: 1px solid #333;
     display: none;
@@ -108,14 +89,36 @@ button:hover {
     transform: translate(-50%, -50%) scale(1);
 }
 
-/* glitch */
-.glitch {
-    animation: glitch 0.3s infinite;
+/* final UI */
+.final-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-@keyframes glitch {
-    0% { transform: translate(1px,-1px); }
-    50% { transform: translate(-1px,1px); }
-    100% { transform: translate(1px,1px); }
+
+.final-card {
+    border: 1px solid #333;
+    padding: 40px 30px;
+    text-align: center;
+    max-width: 320px;
+    background: rgba(20,20,20,0.6);
+    backdrop-filter: blur(10px);
+    animation: fadeUp 0.8s ease;
+}
+
+.line { opacity: 0.7; }
+.divider {
+    height: 1px;
+    background: #333;
+    margin: 20px 0;
+}
+.main { font-size: 20px; }
+.sub { opacity: 0.8; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
@@ -125,10 +128,10 @@ button:hover {
 <!-- LOCK -->
 <div id="lock" class="center">
     <p>Access required</p>
-    <input type="password" id="mainPwd" placeholder="Enter key">
+    <input type="password" id="mainPwd">
     <br><br>
     <button onclick="unlock()">Enter</button>
-    <p id="lockHint" style="opacity:0.6;"></p>
+    <p id="lockHint"></p>
 </div>
 
 <!-- LANDING -->
@@ -148,215 +151,179 @@ const grid = document.getElementById("grid");
 const popup = document.getElementById("popup");
 
 let clicks = [];
-let pwdAttempts = 0;
 let mainAttempts = 0;
+let pwdAttempts = 0;
 
 const tiles = [
-    "Log_01","Memory","Audio",
-    "Error","???.exe","Fragment",
-    "Signal","Hidden","Time"
+"Log_01","Memory","Audio",
+"Error","???.exe","Fragment",
+"Signal","Hidden","Time"
 ];
 
 /* unlock */
-function unlock() {
-    let val = document.getElementById("mainPwd").value.toLowerCase();
-    let hint = document.getElementById("lockHint");
+function unlock(){
+ let val=document.getElementById("mainPwd").value.toLowerCase();
+ let hint=document.getElementById("lockHint");
 
-    if(val === "cabbage") {
-        document.getElementById("lock").style.display = "none";
-        document.getElementById("landing").style.display = "block";
-        return;
-    }
-
-    mainAttempts++;
-    hint.innerText = mainAttempts >= 3
-        ? "Hint: it’s something you always call me… silly."
-        : "Access denied.";
+ if(val==="cabbage"){
+  document.getElementById("lock").style.display="none";
+  document.getElementById("landing").style.display="block";
+ } else {
+  mainAttempts++;
+  hint.innerText=mainAttempts>=3?
+  "Hint: it’s something you always call me… silly.":
+  "Access denied.";
+ }
 }
 
 /* enter */
-function enter() {
-    document.getElementById("landing").style.display = "none";
-    grid.style.display = "grid";
-    generateGrid();
-}
+function enter(){
+ document.getElementById("landing").style.display="none";
+ grid.style.display="grid";
 
-/* grid */
-function generateGrid() {
-    tiles.forEach((name, i) => {
-        let t = document.createElement("div");
-        t.className = "tile";
-        t.innerHTML = `<span>${name}</span>`;
-        t.onclick = () => openTile(i);
-        grid.appendChild(t);
-    });
+ tiles.forEach((t,i)=>{
+  let d=document.createElement("div");
+  d.className="tile";
+  d.innerHTML=`<span>${t}</span>`;
+  d.onclick=()=>openTile(i);
+  grid.appendChild(d);
+ });
 }
 
 /* popup */
-function showPopup(content) {
-    popup.innerHTML = content + "<br><br><button onclick='closePop()'>Close</button>";
-    popup.style.display = "block";
-    setTimeout(()=>popup.classList.add("show"),10);
+function show(content){
+ popup.innerHTML=content+"<br><br><button onclick='closePop()'>Close</button>";
+ popup.style.display="block";
+ setTimeout(()=>popup.classList.add("show"),10);
 }
 
-function closePop() {
-    popup.classList.remove("show");
-    setTimeout(()=>popup.style.display="none",300);
+function closePop(){
+ popup.classList.remove("show");
+ setTimeout(()=>popup.style.display="none",300);
 }
 
 /* tiles */
-function openTile(i) {
-    clicks.push(i);
+function openTile(i){
+ clicks.push(i);
 
-    switch(i) {
+ switch(i){
+  case 0:
+    show("LOG_01:<br><br>You weren’t part of the plan.<br>Yet here we are.");
+    break;
 
-        case 0:
-            showPopup(`LOG_01:<br><br>You weren’t part of the plan.<br>Yet here we are.`);
-            break;
+  case 1:
+    show("Memory:<br><br>You were there.<br><br>That’s what mattered.");
+    break;
 
-        case 1:
-            showPopup(`Memory:<br><br>You were there.<br><br>That’s what mattered.`);
-            break;
+  case 2:
+    show(`<audio controls>
+    <source src="jtor.mp3" type="audio/mpeg">
+    </audio>`);
+    break;
 
-        case 2:
-            showPopup(`<p>Signal playback available.</p>
-            <audio controls>
-            <source src="jtor.mp3" type="audio/mpeg">
-            </audio>`);
-            break;
+  case 3:
+    show("System Error:<br><br>Unexpected attachment detected.<br><br>// no fix available");
+    break;
 
-        case 3:
-            popup.innerHTML = `<div id="type"></div><br><button onclick='closePop()'>Close</button>`;
-            popup.style.display = "block";
-            setTimeout(()=>popup.classList.add("show"),10);
-            typeText(document.getElementById("type"),
-`System Error:
+  case 4:
+    show(`<p>Encrypted file detected</p>
+    <input type="password" id="pwd"><br><br>
+    <button onclick="checkPwd()">Unlock</button>
+    <p id="hint"></p>`);
+    break;
 
-Unexpected attachment detected.
+  case 5:
+    show("Fragment:<br><br>I don’t usually say things like this…<br><br>but with you, it’s different.");
+    break;
 
-// no fix available`);
-            glitch();
-            checkSecret();
-            return;
+  case 6:
+    show("Signal:<br><br>Signal received.<br>Not ignored.");
+    break;
 
-        case 4:
-            showPopup(`<p>Encrypted file detected</p>
-            <input type="password" id="pwd"><br><br>
-            <button onclick="checkPwd()">Unlock</button>
-            <p id="hint" style="opacity:0.6;"></p>`);
-            break;
+  case 7:
+    show("Hidden:<br><br>You stayed.<br><br>That’s rare.");
+    break;
 
-        case 5:
-            showPopup(`Fragment:<br><br>I don’t usually say things like this…<br><br>but with you, it’s different.`);
-            break;
+  case 8:
+    show(`<p>IN // <span id="indiaTime"></span></p>
+    <p>DE // <span id="germanyTime"></span></p>
+    <hr>
+    <p id="elapsed"></p>
+    <p style="opacity:0.6;">Still here.</p>`);
+    startClock();
+    break;
+ }
 
-        case 6:
-            showPopup(`Signal:<br><br>Signal received.<br>Not ignored.`);
-            break;
-
-        case 7:
-            showPopup(`Hidden:<br><br>You stayed.<br><br>That’s rare.`);
-            break;
-
-        case 8:
-            showPopup(`<p>IN // <span id="indiaTime"></span></p>
-            <p>DE // <span id="germanyTime"></span></p>
-            <hr>
-            <p id="elapsed"></p>
-            <p style="opacity:0.6;">Still here.</p>`);
-            startClocks();
-            break;
-    }
-
-    checkSecret();
+ checkSecret();
 }
 
-/* effects */
-function glitch() {
-    document.body.classList.add("glitch");
-    setTimeout(()=>document.body.classList.remove("glitch"),300);
-}
-
-function typeText(el,text,speed=25){
-    el.innerHTML="";
-    let i=0;
-    function t(){
-        if(i<text.length){
-            el.innerHTML+=text.charAt(i);
-            i++;
-            setTimeout(t,speed);
-        }
-    }
-    t();
-}
-
-/* password inside */
+/* password */
 function checkPwd(){
-    let val=document.getElementById("pwd").value.toLowerCase();
-    let hint=document.getElementById("hint");
+ let val=document.getElementById("pwd").value.toLowerCase();
+ let hint=document.getElementById("hint");
 
-    if(val==="cabbage"){
-        popup.innerHTML=`Access granted.<br><br>Of course you’d remember that.<br><br><button onclick='closePop()'>Close</button>`;
-        return;
-    }
-
-    pwdAttempts++;
-    hint.innerText=pwdAttempts>=3?"Hint: 🥬":"Access denied.";
+ if(val==="cabbage"){
+  popup.innerHTML="Access granted.<br><br>Of course you’d remember that.<br><br><button onclick='closePop()'>Close</button>";
+ } else {
+  pwdAttempts++;
+  hint.innerText=pwdAttempts>=3?"Hint: 🥬":"Access denied.";
+ }
 }
 
-/* clocks */
-function startClocks(){
-    function update(){
-        const now=new Date();
+/* clock */
+function startClock(){
+ let start=new Date("2026-01-14T00:00:00");
 
-        document.getElementById("indiaTime").innerText=
-        now.toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"});
+ function update(){
+  let now=new Date();
+  document.getElementById("indiaTime").innerText=
+  now.toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"});
 
-        document.getElementById("germanyTime").innerText=
-        now.toLocaleTimeString("en-DE",{timeZone:"Europe/Berlin"});
+  document.getElementById("germanyTime").innerText=
+  now.toLocaleTimeString("en-DE",{timeZone:"Europe/Berlin"});
 
-        const startDate=new Date("2026-01-14T00:00:00");
-        const diff=now-startDate;
+  let diff=now-start;
+  let d=Math.floor(diff/(1000*60*60*24));
+  let h=Math.floor((diff/(1000*60*60))%24);
+  let m=Math.floor((diff/(1000*60))%60);
 
-        const d=Math.floor(diff/(1000*60*60*24));
-        const h=Math.floor((diff/(1000*60*60))%24);
-        const m=Math.floor((diff/(1000*60))%60);
+  document.getElementById("elapsed").innerText=`${d}d ${h}h ${m}m`;
+ }
 
-        document.getElementById("elapsed").innerText=`${d}d ${h}h ${m}m`;
-    }
-    update();
-    setInterval(update,1000);
+ update();
+ setInterval(update,1000);
 }
 
-/* unlock final */
+/* unlock final AFTER 5 sec */
 function checkSecret(){
-    let unique=new Set(clicks);
-    if(unique.size===9){
-        setTimeout(()=>revealFinal(),600);
-    }
+ let unique=new Set(clicks);
+
+ if(unique.size===9){
+  setTimeout(()=>revealFinal(),5000);
+ }
 }
 
+/* final */
 function revealFinal(){
-    document.body.style.opacity="0";
-    setTimeout(()=>{
-        document.body.innerHTML=`
-        <div class="center">
-            <p>I don’t say things often.</p>
-            <p>But when I do, I mean them.</p>
-            <br>
-            <p>—</p>
-            <br>
-            <p>You matter.</p>
-            <p>More than you realize.</p>
-        </div>`;
-        document.body.style.opacity="1";
-    },600);
-}
+ document.body.style.opacity="0";
 
-/* enter key */
-document.addEventListener("keydown", function(e){
-    if(e.key==="Enter") unlock();
-});
+ setTimeout(()=>{
+  document.body.innerHTML=`
+  <div class="final-container">
+   <div class="final-card">
+    <p class="line">I don’t say things often.</p>
+    <p class="line">But when I do, I mean them.</p>
+
+    <div class="divider"></div>
+
+    <p class="main">You matter.</p>
+    <p class="sub">More than you realize.</p>
+   </div>
+  </div>
+  `;
+  document.body.style.opacity="1";
+ },600);
+}
 </script>
 
 </body>
